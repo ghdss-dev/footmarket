@@ -8,9 +8,6 @@ import br.com.gustavo.footmarket.back_end.entity.Transacao;
 import br.com.gustavo.footmarket.back_end.repository.ClubeRepository;
 import br.com.gustavo.footmarket.back_end.repository.JogadorRepository;
 import br.com.gustavo.footmarket.back_end.repository.TransacaoRepository;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -46,42 +43,44 @@ public class TransacaoService {
     @Transactional
     public TransacaoResponse criarParaTeste(TransacaoRequest transacaoRequest) {
 
-        Clube clube = clubeRepository.findById(transacaoRequest.jogadorId())
+        Clube clube = clubeRepository.findById(transacaoRequest.clubeId())
                 .orElseThrow(() -> new ResponseStatusException(
-
                         HttpStatus.NOT_FOUND,
                         "Clube não encontrado."
                 ));
 
-        Jogador jogador = jogadorRepository.findByIdAndExcluidoEmIsNull(transacaoRequest.jogadorId())
+        Jogador jogador = jogadorRepository
+                .findByIdAndExcluidoEmIsNull(transacaoRequest.jogadorId())
                 .orElseThrow(() -> new ResponseStatusException(
-
                         HttpStatus.NOT_FOUND,
                         "Jogador não encontrado."
                 ));
 
-        LocalDateTime agora = LocalDateTime.now();
+        LocalDateTime agora = LocalDateTime.now(BRASILIA);
 
         if (Transacao.COMPRA.equals(transacaoRequest.tipo())) {
 
-            return registrarCompra(jogador, clube, transacaoRequest.valor(), transacaoRequest.taxa(), agora);
-
+            return registrarCompra(
+                    jogador,
+                    clube,
+                    transacaoRequest.valor(),
+                    transacaoRequest.taxa(),
+                    agora
+            );
         }
 
         if (transacaoRequest.lucro() == null) {
-
             throw new ResponseStatusException(
-
                     HttpStatus.BAD_REQUEST,
-                    "O lucro é obrigatório em uma venda"
+                    "O lucro é obrigatório em uma venda."
             );
         }
 
         BigDecimal multa = transacaoRequest.multa() == null
-                ? BigDecimal.ZERO.setScale(2) : transacaoRequest.multa();
+                ? BigDecimal.ZERO.setScale(2)
+                : transacaoRequest.multa();
 
         return registrarVenda(
-
                 jogador,
                 clube,
                 transacaoRequest.valor(),
@@ -175,9 +174,9 @@ public class TransacaoService {
             transacoes = transacaoRepository.findByClubeIdOrderByCriadoEmDescIdDesc(clubeId);
         }
 
-       return transacoes.stream()
-               .map(this::paraResponse)
-               .toList();
+        return transacoes.stream()
+                .map(this::paraResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

@@ -118,28 +118,28 @@ public class JogadorService {
 
         Clube clube = jogador.getClube();
 
-       return new JogadorResponse(
+        return new JogadorResponse(
 
-               jogador.getId(),
-               jogador.getNome(),
-               jogador.getPosicao(),
-               jogador.getAgilidade(),
-               jogador.getIdade(),
-               jogador.getValorBase(),
-               jogador.getCondicao(),
+                jogador.getId(),
+                jogador.getNome(),
+                jogador.getPosicao(),
+                jogador.getAgilidade(),
+                jogador.getIdade(),
+                jogador.getValorBase(),
+                jogador.getCondicao(),
 
-               clube != null ? clube.getId() : null,
-               clube != null ? clube.getNome() : null,
-               jogador.getVelocidade(),
-               jogador.getFinalizacao(),
-               jogador.getPasse(),
-               jogador.getDrible(),
-               jogador.getDefesa(),
-               jogador.getFisico(),
-               jogador.getPotencial(),
-               jogador.getCriadoEm(),
-               jogador.getAtualizadoEm()
+                clube != null ? clube.getId() : null,
+                clube != null ? clube.getNome() : null,
+                jogador.getVelocidade(),
+                jogador.getFinalizacao(),
+                jogador.getPasse(),
+                jogador.getDrible(),
+                jogador.getDefesa(),
+                jogador.getFisico(),
+                jogador.getPotencial(),
+                jogador.getCriadoEm(),
+                jogador.getAtualizadoEm()
 
-       );
+        );
     }
 }
