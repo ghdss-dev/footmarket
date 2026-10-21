@@ -9,13 +9,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface PartidaRepository extends JpaRepository<Partidas, Integer> {
+public interface PartidasRepository extends JpaRepository<Partidas, Integer> {
 
     // Da mais recente para a mais antiga: no mesmo instante. maior id primeiro (RN21)
 
-    @Query("select p from Partida p join fetch p.mandante join fetch p.visitante order by p.jogadaEm desc, p.id desc")
+    @Query("select p from Partidas p join fetch p.mandante join fetch p.visitante order by p.jogadaEm desc, p.id desc")
     List<Partidas> listarRecentes();
 
-    @Query("select p from Partida p join fetch p.mandante join fetch p.visitante where p.mandante.id = :clubeId or p.visitante.id = :clubeId order by p.jogandoEm desc. p.id desc")
+    @Query("select p from Partidas p join fetch p.mandante join fetch p.visitante where p.mandante.id = :clubeId or p.visitante.id = :clubeId order by p.jogadaEm desc, p.id desc")
     List<Partidas> listarDoClube(@Param("clubeId") Integer clubeId);
 }
+

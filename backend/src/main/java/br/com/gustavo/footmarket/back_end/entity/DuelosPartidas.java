@@ -3,8 +3,8 @@ package br.com.gustavo.footmarket.back_end.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "duelo_partida")
-public class DueloPartida {
+@Table(name = "duelos_partida")
+public class DuelosPartidas {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +34,7 @@ public class DueloPartida {
     @Column(name = "nome_atacante", nullable = false, length = 100)
     private String nomeAtacante;
 
-    @Column(name = "nome_defensor", nullable = false, length = 3)
+    @Column(name = "nome_defensor", nullable = false, length = 100)
     private String nomeDefensor;
 
     @Column(name = "posicao_atacante", nullable = false, length = 3)
@@ -51,7 +51,7 @@ public class DueloPartida {
 
     // shooting, passing, dribbling ou defending.
     @Column(name = "atributo_ataque", nullable = false, length = 10)
-    private String atributoAtacante;
+    private String atributoAtaque;
 
     @Column(name = "atributo_defesa", nullable = false, length = 10)
     private String atributoDefesa;
@@ -66,7 +66,7 @@ public class DueloPartida {
     @Column(name = "gol", nullable = false)
     private Boolean gol;
 
-    public DueloPartida() {}
+    public DuelosPartidas() {}
 
     public Integer getId() {
         return id;
@@ -164,12 +164,12 @@ public class DueloPartida {
         this.condicaoDefensor = condicaoDefensor;
     }
 
-    public String getAtributoAtacante() {
-        return atributoAtacante;
+    public String getAtributoAtaque() {
+        return atributoAtaque;
     }
 
-    public void setAtributoAtacante(String atributoAtacante) {
-        this.atributoAtacante = atributoAtacante;
+    public void setAtributoAtaque(String atributoAtaque) {
+        this.atributoAtaque = atributoAtaque;
     }
 
     public String getAtributoDefesa() {
