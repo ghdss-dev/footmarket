@@ -91,7 +91,7 @@ public class JogadorService {
         jogador.setCondicao(request.condicao().isBlank() ? "APTO" : request.condicao());
 
         jogador.setVelocidade(request.velocidade());
-        jogador.setFinalizacao(request.finalizado());
+        jogador.setFinalizacao(request.finalizacao());
         jogador.setPasse(request.passe());
         jogador.setDrible(request.drible());
         jogador.setDefesa(request.defesa());

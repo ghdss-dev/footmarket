@@ -45,7 +45,7 @@ public record JogadorRequest(
         Integer velocidade,
 
         @NotNull @Min(0) @Max(100)
-        Integer finalizado,
+        Integer finalizacao,
 
         @NotNull @Min(0) @Max(100)
         Integer passe,

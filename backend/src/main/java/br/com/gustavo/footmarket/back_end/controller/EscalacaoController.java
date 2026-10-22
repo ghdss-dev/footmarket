@@ -7,7 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/clubes/{clubeId}/escalacao")
+@RequestMapping("/api/v1/clubs/{clubeId}/lineup")
 public class EscalacaoController {
 
     private final EscalacaoService escalacaoService;

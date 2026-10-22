@@ -19,7 +19,7 @@ public record ContratoRequest(
 
         @NotNull(message = "O valor da compra é obrigatório.")
         @Positive(message = "O valor da compra deve ser maior que zero")
-        @Digits(integer = 4, fraction = 2, message = "O valor da compra deve ter no máximo 2 casas decímais")
+        @Digits(integer = 8, fraction = 2, message = "O valor da compra deve ter no máximo 2 casas decímais")
         BigDecimal valorCompra,
 
         @NotNull(message = "O fim da fidelidade é obrigatório.")

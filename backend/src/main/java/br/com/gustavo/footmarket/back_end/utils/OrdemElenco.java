@@ -9,7 +9,7 @@ import java.util.Locale;
 
 public final class OrdemElenco {
 
-    private static final List<String> POSICOES = List.of("GOL", "ZAG", "LAT", "MEI", "ATA");
+    private static final List<String> POSICOES = List.of("GOL", "ZAG", "MEI", "ATA");
 
     private OrdemElenco() {}
 

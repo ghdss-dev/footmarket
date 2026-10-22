@@ -18,7 +18,7 @@ import java.util.List;
  * POST /matches, GET /matches, GET /matches/{id} e GET /standings.
  */
 @RestController
-@RequestMapping("/api/partidas")
+@RequestMapping("/api/v1")
 public class PartidasController {
 
     private final PartidasService partidaService;

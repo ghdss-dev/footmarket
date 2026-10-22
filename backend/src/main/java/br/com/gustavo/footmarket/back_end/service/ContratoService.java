@@ -44,6 +44,8 @@ public class ContratoService {
 
         LocalDateTime agora = LocalDateTime.now(BRASILIA);
 
+        validarFidelidade(request.fidelidadeAte(), agora);
+
         Jogador jogador = jogadorRepository.findByIdAndExcluidoEmIsNull(request.jogadorId())
                 .orElseThrow(() -> new ResponseStatusException(
 

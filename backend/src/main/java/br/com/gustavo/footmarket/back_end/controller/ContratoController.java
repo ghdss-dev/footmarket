@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/contratos")
+@RequestMapping("/api/v1/contracts")
 public class ContratoController {
 
     private final ContratoService contratoService;
@@ -41,7 +41,7 @@ public class ContratoController {
         return contratoService.buscarPorId(id);
     }
 
-    @GetMapping("/jogador/{jogadorId}/ativo")
+    @GetMapping("/player/{jogadorId}/active")
     public ContratoResponse buscarPorJogadorId(@PathVariable Integer jogadorId) {
 
         return contratoService.buscarAtivoPorJogador(jogadorId);

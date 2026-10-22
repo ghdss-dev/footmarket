@@ -20,13 +20,13 @@ public record TransacaoRequest(
 
         @NotNull(message = "O valor é obrigatório.")
         @Positive(message = "O valor deve ser maior que zero.")
-        @Digits(integer = 4, fraction = 2, message = "O valor deve ter no máximo 2 casas decímais.")
+        @Digits(integer = 8, fraction = 2, message = "O valor deve ter no máximo 2 casas decímais.")
         BigDecimal valor,
 
         // Taxa de compra ou comissão de venda.
         @NotNull(message = "A taxa ou comissão é obrigatória.")
         @PositiveOrZero(message = "A taxa ou comissão não pode ser negativa.")
-        @Digits(integer = 4, fraction = 2, message = "A taxa ou comissão deve ter no máximo 2 casas decimais.")
+        @Digits(integer = 8, fraction = 2, message = "A taxa ou comissão deve ter no máximo 2 casas decimais.")
         BigDecimal taxa,
 
         // So na venda, na compra e ignorada (fica 0,00).
