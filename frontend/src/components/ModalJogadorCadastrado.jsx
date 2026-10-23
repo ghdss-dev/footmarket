@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { api } from '../services/api';
 
-export function ModalJogadorCadastrar({ isOpen, onClose, onJogadorCadastrado }) {
+export function ModalJogadorCadastrado({ isOpen, onClose, onJogadorCadastrado }) {
   const [nome, setNome] = useState('');
   const [posicao, setPosicao] = useState('GOL');
   const [overall, setOverall] = useState(70);
