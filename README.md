@@ -131,8 +131,9 @@ Há testes de serviço (`ContratoServiceTest`) e de controller (`PartidasControl
 ```
 frontend/src/
 ├── pages/        Home, Jogadores, Clubes, DetalheClube
-├── components/   modais (novo, editar, condição, detalhes, excluir), menu de ações,
-│                 toast de sucesso, aba de escalação, modal de novo clube
+├── components/   modais de jogador (novo, editar, condição, detalhes, excluir, comprar e
+│                 compra concluída), modal de novo clube, menu de ações, toast de
+│                 sucesso e aba de escalação
 ├── services/     api.js (instância do Axios)
 ├── App.jsx       rotas
 └── index.css
@@ -154,13 +155,19 @@ O `Dockerfile` compila o app com Node 20 e serve os arquivos estáticos com Ngin
 ### Telas
 
 - **Início:** apresentação da liga e o fluxo do sistema, do cadastro à classificação.
-- **Jogadores:** tabela com busca por nome, filtros por posição, condição e clube, abas de livres e com clube, ordenação, cadastro de jogador (com mensagem de sucesso), edição, alteração de condição física, detalhes e exclusão com confirmação.
-- **Clubes:** listagem com caixa, valor do elenco e patrimônio, ordenável por nome ou patrimônio, e criação de clube.
-- **Detalhe do clube:** caixa, valor do elenco e patrimônio, elenco com colunas de contrato (fim da fidelidade, dias restantes e % de multa) e aba **Escalação** com as formações 3-1, 2-2, 2-1-1 e 1-2-1.
+- **Jogadores:** tabela com busca por nome, filtros por posição, condição, clube, idade e valor de mercado, abas Todos, Livres e Em clubes, cadastro de jogador (com mensagem de sucesso), edição, alteração de condição, detalhes, compra (só para jogador livre) e exclusão com confirmação.
+- **Compra de jogador:** o modal pede o clube e a data e hora do fim da fidelidade, mostra o custo estimado e avisa quando ele passa de 50% do caixa. A confirmação vai para a API, e a mensagem de recusa dela é exibida no modal. Ao concluir, abre um resumo da compra.
+- **Clubes:** listagem com caixa, valor do elenco e patrimônio, ordenável por nome ou patrimônio, e criação de clube (nome e sigla de até 4 letras).
+- **Detalhe do clube:** caixa, valor do elenco e patrimônio, e três abas:
+  - **Elenco:** jogador, posição, overall, condição e valor de mercado.
+  - **Escalação:** formações 3-1, 2-2, 2-1-1 e 1-2-1 e os 5 titulares, salvos na API. Jogador doente não pode ser escalado.
+  - **Histórico:** por enquanto só mostra o contador.
 
 ### Integração com a API
 
-O frontend chama `GET/POST/PUT/DELETE /players`, `PATCH /players/{id}/condition` (com `PUT /players/{id}` como alternativa), `GET/POST /clubs` e `GET /clubs/{id}`.
+O frontend chama `GET/POST/PUT/DELETE /players`, `PATCH /players/{id}/condition`, `GET/POST /clubs`, `GET /clubs/{id}`, `POST /clubs/{id}/buy-player` (compra) e `PUT /clubs/{id}/lineup` (escalação).
+
+A compra usa `POST /clubs/{id}/buy-player` com `playerId` e `fidelidadeAte`. Essa rota não está na tabela de endpoints do backend acima (que prevê `POST /players/{id}/buy`), então as duas pontas precisam ser alinhadas.
 
 ---
 
@@ -182,6 +189,15 @@ O que ainda não está completo:
 
 **Frontend**
 
-- Compra, venda, histórico de transações com exportação em CSV, tela de partidas e classificação ainda não estão ligados à API.
-- A aba Escalação e o elenco do detalhe do clube trabalham com dados de exemplo e ainda não gravam na API.
-- Estados de carregamento, vazio e erro, e validação de formulário, precisam cobrir todas as telas.
+Já está ligado à API: cadastro, edição, exclusão e troca de condição de jogadores, criação de clubes, detalhe do clube, compra de jogador e gravação da escalação.
+
+Falta:
+
+- Venda de jogador: o botão **Vender** do elenco ainda não tem ação.
+- Histórico de transações (a aba existe, sem conteúdo) e exportação em CSV.
+- Telas de partidas e classificação.
+- Colunas de contrato no elenco (fim da fidelidade, dias restantes e % de multa).
+- Números da tela inicial, que hoje são fixos.
+- Estados de carregamento, vazio e erro, e validação de formulário, em todas as telas. O detalhe do clube, por exemplo, só registra o erro no console.
+- Rota `/clubes/:id` com a aba Escalação: o componente recebe `clubre` em vez de `clube` em `DetalheClube.jsx` (linha 215), e a aba quebra até isso ser corrigido.
+- Filtro de condição da lista de jogadores usa Apto, Lesionado e Suspenso, enquanto o cadastro e a troca de condição usam Apto, Mal condicionado e Doente.
