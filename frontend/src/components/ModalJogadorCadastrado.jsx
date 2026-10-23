@@ -1,74 +1,127 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { api } from '../services/api';
 
-export function ModalJogadorCadastrado({ isOpen, onClose, jogador }) {
-  if (!isOpen || !jogador) return null;
+export function ModalJogadorCadastrar({ isOpen, onClose, onJogadorCadastrado }) {
+  const [nome, setNome] = useState('');
+  const [posicao, setPosicao] = useState('GOL');
+  const [overall, setOverall] = useState(70);
+  const [valorMercado, setValorMercado] = useState(50);
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState('');
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErro('');
+    setCarregando(true);
+
+    try {
+      await api.post('/players', {
+        nome,
+        posicao,
+        overall: Number(overall),
+        valorMercado: Number(valorMercado),
+        condicao: 'Apto',
+      });
+
+      setNome('');
+      setPosicao('GOL');
+      setOverall(70);
+      setValorMercado(50);
+      onJogadorCadastrado();
+      onClose();
+    } catch (err) {
+      console.error('Erro ao cadastrar jogador:', err);
+      setErro(err.response?.data?.message || 'Erro ao cadastrar o jogador.');
+    } finally {
+      setCarregando(false);
+    }
+  };
 
   return (
     <div style={styles.overlay}>
       <div style={styles.modal}>
-        {/* Ícone de Sucesso */}
-        <div style={styles.successIcon}>✓</div>
-
-        <h3 style={{ margin: '16px 0 4px', fontSize: '18px', fontWeight: 'bold' }}>
-          Jogador cadastrado
-        </h3>
-        <p style={{ margin: '0 0 20px', fontSize: '12px', color: '#64748b' }}>
-          <b>{jogador.nome}</b> entrou Livre e Apto. Valores em moedas, calculados pela API ao salvar.
+        <h3 style={{ margin: '0 0 8px', fontSize: '18px', color: '#0f172a' }}>Cadastrar Jogador</h3>
+        <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#64748b' }}>
+          Adicione um novo jogador ao mercado geral.
         </p>
 
-        {/* Card de Valores Calculados pelo Spring Boot */}
-        <div style={styles.valuesCard}>
-          <div style={styles.valueRow}>
-            <div>
-              <div style={{ fontWeight: 'bold', fontSize: '13px' }}>Valor base</div>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Calculado no cadastro; não muda depois</div>
-            </div>
-            <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
-              {jogador.valorBase ? jogador.valorBase.toFixed(2) : '0.00'}
-            </div>
+        {erro && <div style={styles.erroBox}>{erro}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '14px' }}>
+            <label style={styles.label}>Nome do jogador</label>
+            <input
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Ex: Lucas Ferraz"
+              style={styles.input}
+              required
+            />
           </div>
 
-          <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '12px 0' }} />
-
-          <div style={styles.valueRow}>
-            <div>
-              <div style={{ fontWeight: 'bold', fontSize: '13px' }}>Valor de mercado</div>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Com condição, agilidade e idade</div>
-            </div>
-            <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
-              {jogador.valorMercado ? jogador.valorMercado.toFixed(2) : '0.00'}
-            </div>
+          <div style={{ marginBottom: '14px' }}>
+            <label style={styles.label}>Posição</label>
+            <select
+              value={posicao}
+              onChange={(e) => setPosicao(e.target.value)}
+              style={styles.input}
+            >
+              <option value="GOL">Goleiro (GOL)</option>
+              <option value="ZAG">Zagueiro (ZAG)</option>
+              <option value="LAT">Lateral (LAT)</option>
+              <option value="MEI">Meio-campista (MEI)</option>
+              <option value="ATA">Atacante (ATA)</option>
+            </select>
           </div>
 
-          <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '12px 0' }} />
-
-          <div style={styles.valueRow}>
-            <div>
-              <div style={{ fontWeight: 'bold', fontSize: '13px' }}>Overall</div>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Pelos pesos da posição {jogador.posicao}</div>
-            </div>
-            <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#2563eb' }}>
-              {jogador.overall}
-            </div>
+          <div style={{ marginBottom: '14px' }}>
+            <label style={styles.label}>Overall</label>
+            <input
+              type="number"
+              value={overall}
+              onChange={(e) => setOverall(e.target.value)}
+              style={styles.input}
+              min="1"
+              max="99"
+              required
+            />
           </div>
-        </div>
 
-        {/* Botões do Rodapé */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '20px' }}>
-          <button onClick={onClose} style={styles.btnSecondary}>Ver detalhes</button>
-          <button onClick={onClose} style={styles.btnPrimary}>Fechar</button>
-        </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label style={styles.label}>Valor de Mercado (moedas)</label>
+            <input
+              type="number"
+              value={valorMercado}
+              onChange={(e) => setValorMercado(e.target.value)}
+              style={styles.input}
+              min="1"
+              required
+            />
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <button type="button" onClick={onClose} style={styles.btnCancelar} disabled={carregando}>
+              Cancelar
+            </button>
+            <button type="submit" style={styles.btnSalvar} disabled={carregando}>
+              {carregando ? 'Salvando...' : 'Cadastrar'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
 }
 
 const styles = {
-  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.6)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 },
-  modal: { backgroundColor: '#fff', borderRadius: '12px', padding: '24px', maxWidth: '440px', width: '100%', textAlign: 'center' },
-  successIcon: { backgroundColor: '#dcfce7', color: '#16a34a', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto', fontSize: '20px', fontWeight: 'bold' },
-  valuesCard: { backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', textAlign: 'left' },
-  valueRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  btnSecondary: { padding: '8px 16px', border: '1px solid #cbd5e1', backgroundColor: '#fff', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
-  btnPrimary: { padding: '8px 16px', border: 'none', backgroundColor: '#2563eb', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }
+  overlay: { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
+  modal: { backgroundColor: '#fff', borderRadius: '8px', padding: '24px', width: '400px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' },
+  label: { display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#0f172a', marginBottom: '6px' },
+  input: { width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '14px', boxSizing: 'border-box' },
+  erroBox: { backgroundColor: '#fee2e2', border: '1px solid #fca5a5', color: '#b91c1c', padding: '10px', borderRadius: '6px', fontSize: '12px', marginBottom: '16px' },
+  btnCancelar: { padding: '8px 16px', backgroundColor: '#fff', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', color: '#334155' },
+  btnSalvar: { padding: '8px 16px', backgroundColor: '#2563eb', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', color: '#fff' },
 };

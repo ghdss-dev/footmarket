@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-export function MenuAcoesJogador({ jogador, onEditar, onAlterarCondicao, onComprar, onExcluir }) {
+export function MenuAcoesJogador({ jogador, onDetalhes, onEditar, onAlterarCondicao, onComprar, onExcluir }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -31,7 +31,7 @@ export function MenuAcoesJogador({ jogador, onEditar, onAlterarCondicao, onCompr
 
           <button
             style={styles.menuItem}
-            onClick={() => { setIsOpen(false); alert(`Detalhes do jogador: ${jogador.nome}`); }}
+            onClick={() => { setIsOpen(false); onDetalhes && onDetalhes(jogador); }}
           >
             👁 Ver detalhes
           </button>
@@ -52,7 +52,7 @@ export function MenuAcoesJogador({ jogador, onEditar, onAlterarCondicao, onCompr
 
           <hr style={styles.divider} />
 
-          {!jogador.clubeNome && (
+          {!jogador.clubeId && !jogador.clubeNome && (
             <button
               style={styles.menuItem}
               onClick={() => { setIsOpen(false); onComprar(jogador); }}
