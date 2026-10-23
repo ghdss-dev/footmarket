@@ -1,0 +1,58 @@
+services:
+  # Serviço 1: Banco de Dados MySQL
+  db:
+    image: mysql:8.0
+    container_name: footmarket-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: footmarket
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - footmarket-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Serviço 2: API Spring Boot
+  api:
+    build: ./backend
+    container_name: footmarket-api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/footmarket?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_FLYWAY_ENABLED: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - footmarket-net
+
+  # Serviço 3: Front-end React + Vite (Nginx)
+  frontend:
+    build: ./frontend
+    container_name: footmarket-web
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - footmarket-net
+
+networks:
+  footmarket-net:
+    driver: bridge
+
+volumes:
+  mysql_data:
