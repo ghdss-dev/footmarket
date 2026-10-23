@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { ModalNovoJogador } from '../components/ModalNovoJogador';
 import { ModalJogadorCadastrado } from '../components/ModalJogadorCadastrado';
@@ -10,6 +11,7 @@ import { MenuAcoesJogador } from '../components/MenuAcoesJogador';
 import { ToastSucesso } from '../components/ToastSucesso';
 
 export function Jogadores() {
+  const navigate = useNavigate();
   const [jogadores, setJogadores] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -187,7 +189,7 @@ export function Jogadores() {
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'sans-serif' }}>
       {/* Sidebar Lateral */}
       <aside style={styles.sidebar}>
-        <div style={styles.brand}>
+        <div style={{ ...styles.brand, cursor: 'pointer' }} onClick={() => navigate('/')}>
           <div style={styles.brandIcon}>P</div>
           <div>
             <strong style={{ fontSize: '16px' }}>Passe</strong>
@@ -197,10 +199,10 @@ export function Jogadores() {
 
         <nav style={styles.menu}>
           <div style={styles.menuGroup}>MERCADO</div>
-          <a style={{ ...styles.menuItem, ...styles.menuActive }}>
+          <a style={{ ...styles.menuItem, ...styles.menuActive }} onClick={() => navigate('/jogadores')}>
             👤 Jogadores <span style={styles.badge}>{jogadores.length}</span>
           </a>
-          <a style={styles.menuItem}>
+          <a style={styles.menuItem} onClick={() => navigate('/clubes')}>
             🛡️ Clubes <span style={styles.badge}>6</span>
           </a>
 
@@ -416,21 +418,19 @@ export function Jogadores() {
         </div>
       </main>
 
-      {/* Modal 1: Cadastro de Novo Jogador */}
+      {/* Modais e Notificações */}
       <ModalNovoJogador
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onJogadorCriado={handleJogadorCriadoSucesso}
       />
 
-      {/* Modal 2: Resultado de Sucesso do Cadastro (J07) */}
       <ModalJogadorCadastrado
         isOpen={isSucessoOpen}
         onClose={() => setIsSucessoOpen(false)}
         jogador={jogadorRecemCadastrado}
       />
 
-      {/* Modal 3: Edição de Jogador Existente (J09) */}
       <ModalEditarJogador
         isOpen={isEditarOpen}
         onClose={() => setIsEditarOpen(false)}
@@ -438,7 +438,6 @@ export function Jogadores() {
         onJogadorAtualizado={carregarJogadores}
       />
 
-      {/* Modal 4: Alterar Condição Física (J10) */}
       <ModalAlterarCondicao
         isOpen={isCondicaoOpen}
         onClose={() => setIsCondicaoOpen(false)}
@@ -446,7 +445,6 @@ export function Jogadores() {
         onCondicaoAtualizada={handleCondicaoAtualizadaSucesso}
       />
 
-      {/* Modal 5: Detalhes do Jogador (J12) */}
       <ModalDetalhesJogador
         isOpen={isDetalhesOpen}
         onClose={() => setIsDetalhesOpen(false)}
@@ -456,7 +454,6 @@ export function Jogadores() {
         onComprar={handleComprarJogador}
       />
 
-      {/* Modal 6: Confirmação de Exclusão (J13) */}
       <ModalExcluirJogador
         isOpen={isExcluirOpen}
         onClose={() => setIsExcluirOpen(false)}
@@ -464,7 +461,6 @@ export function Jogadores() {
         onJogadorExcluido={handleJogadorExcluidoSucesso}
       />
 
-      {/* Toast Notification: Sucesso ao Alterar Condição (J11) ou Excluir (J14) */}
       {toastInfo.exibe && (
         <ToastSucesso
           mensagem={toastInfo.mensagem}

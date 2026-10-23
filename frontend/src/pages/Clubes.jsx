@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { ModalNovoClube } from '../components/ModalNovoClube'; // Importação do Modal
 
 export function Clubes() {
+  const navigate = useNavigate();
   const [clubes, setClubes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ordenacao, setOrdenacao] = useState('patrimonio_desc');
+
+  // Estado para controlar abertura do Modal de Novo Clube
+  const [isModalNovoOpen, setIsModalNovoOpen] = useState(false);
 
   const carregarClubes = async () => {
     try {
@@ -13,7 +19,6 @@ export function Clubes() {
       setClubes(response.data);
     } catch (error) {
       console.error('Erro ao buscar clubes:', error);
-      // Fallback visual de dados para testes se a API ainda não tiver o endpoint pronto
       setClubes([
         { id: 1, nome: 'Tubarões EC', sigla: 'TUB', caixa: 300.00, valorElenco: 0.00 },
         { id: 2, nome: 'Épsilon EC', sigla: 'EPS', caixa: 215.47, valorElenco: 80.50 },
@@ -30,6 +35,10 @@ export function Clubes() {
   useEffect(() => {
     carregarClubes();
   }, []);
+
+  const handleClubeCriado = () => {
+    carregarClubes();
+  };
 
   const clubesOrdenados = [...clubes].sort((a, b) => {
     const patrimonioA = (a.caixa || 0) + (a.valorElenco || a.valorDoElenco || 0);
@@ -51,7 +60,7 @@ export function Clubes() {
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: 'sans-serif' }}>
       {/* Sidebar Lateral */}
       <aside style={styles.sidebar}>
-        <div style={styles.brand}>
+        <div style={{ ...styles.brand, cursor: 'pointer' }} onClick={() => navigate('/')}>
           <div style={styles.brandIcon}>P</div>
           <div>
             <strong style={{ fontSize: '16px' }}>Passe</strong>
@@ -61,10 +70,10 @@ export function Clubes() {
 
         <nav style={styles.menu}>
           <div style={styles.menuGroup}>MERCADO</div>
-          <a style={styles.menuItem} href="/jogadores">
+          <a style={styles.menuItem} onClick={() => navigate('/jogadores')}>
             👤 Jogadores <span style={styles.badge}>23</span>
           </a>
-          <a style={{ ...styles.menuItem, ...styles.menuActive }}>
+          <a style={{ ...styles.menuItem, ...styles.menuActive }} onClick={() => navigate('/clubes')}>
             🛡️ Clubes <span style={styles.badge}>{clubes.length}</span>
           </a>
 
@@ -83,7 +92,7 @@ export function Clubes() {
               Cada clube começa com 300,00 em caixa e sem jogadores. A liga aceita no máximo 20 clubes.
             </p>
           </div>
-          <button style={styles.btnNovo}>
+          <button style={styles.btnNovo} onClick={() => setIsModalNovoOpen(true)}>
             + Novo clube
           </button>
         </header>
@@ -113,11 +122,22 @@ export function Clubes() {
           </div>
         </div>
 
-        {/* Tabela de Clubes */}
-        <div style={styles.tableCard}>
-          {loading ? (
-            <p style={{ padding: '20px', textAlign: 'center' }}>Carregando clubes...</p>
-          ) : (
+        {/* Tabela de Clubes ou Estado de Lista Vazia (C09) */}
+        {loading ? (
+          <p style={{ padding: '20px', textAlign: 'center' }}>Carregando clubes...</p>
+        ) : clubes.length === 0 ? (
+          <div style={{ backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '60px 20px', textAlign: 'center' }}>
+            <div style={{ fontSize: '28px', marginBottom: '12px', color: '#94a3b8' }}>🛡️</div>
+            <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#0f172a', margin: '0 0 6px' }}>Nenhum clube cadastrado</h3>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 20px' }}>
+              Crie o primeiro clube com nome e sigla. Ele começa com 300,00 em caixa e sem jogadores.
+            </p>
+            <button style={styles.btnNovo} onClick={() => setIsModalNovoOpen(true)}>
+              + Novo clube
+            </button>
+          </div>
+        ) : (
+          <div style={styles.tableCard}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', fontSize: '12px' }}>
@@ -147,22 +167,32 @@ export function Clubes() {
                         {patrimonioVal ? patrimonioVal.toFixed(2) : '0,00'}
                       </td>
                       <td style={{ textAlign: 'right', paddingRight: '24px' }}>
-                        <a href={`/clubes/${c.id}`} style={styles.linkVerClube}>
+                        <span 
+                          onClick={() => navigate(`/clubes/${c.id}`)} 
+                          style={{ ...styles.linkVerClube, cursor: 'pointer' }}
+                        >
                           Ver clube &gt;
-                        </a>
+                        </span>
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-          )}
-        </div>
+          </div>
+        )}
 
         <p style={{ fontSize: '11px', color: '#94a3b8', marginTop: '16px' }}>
           Clubes pelo nome por padrão ou pelo patrimônio, do maior para o menor, com empate desfeito pelo nome.
         </p>
       </main>
+
+      {/* Modal de Novo Clube */}
+      <ModalNovoClube
+        isOpen={isModalNovoOpen}
+        onClose={() => setIsModalNovoOpen(false)}
+        onClubeCriado={handleClubeCriado}
+      />
     </div>
   );
 }
