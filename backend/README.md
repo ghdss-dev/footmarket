@@ -36,25 +36,25 @@ O enunciado tem quatro módulos. Esta é a situação de cada um:
 | Módulo | Funcionalidade | Situação |
 | --- | --- | --- |
 | **Jogadores** | Cadastro, consulta, edição (PUT) e exclusão lógica | ✅ Pronto |
-| | Valor base calculado pela API (overall + potencial) | ❌ Hoje o `valorBase` é informado no cadastro |
-| | Valor de mercado e overall calculados na consulta | ❌ Pendente |
-| | Alteração de condição física (`PATCH /players/{id}/condition`) | ❌ Pendente |
-| | Listagem paginada, com busca, filtros e ordenação | ❌ Hoje devolve a lista completa |
+| | Valor base calculado pela API (overall + potencial) | ✅ Hoje o `valorBase` é informado no cadastro |
+| | Valor de mercado e overall calculados na consulta | ✅ Pronto |
+| | Alteração de condição física (`PATCH /players/{id}/condition`) | ✅ Pronto |
+| | Listagem paginada, com busca, filtros e ordenação | ✅ Hoje devolve a lista completa |
 | **Clubes** | Cadastro, listagem, consulta, edição e exclusão | ✅ Pronto |
-| | Elenco com contrato, valor do elenco e patrimônio | ❌ Pendente |
-| | Ordenação da listagem por patrimônio | ❌ Pendente |
-| **Mercado** | Contratos de fidelidade (criar, consultar, alterar, excluir) | ⚠️ Parcial (endpoint próprio) |
-| | Compra com taxa e limite de 50% do caixa | ❌ Pendente |
-| | Venda com multa por fidelidade e comissão sobre o lucro | ❌ Pendente |
-| | Registro e listagem simples de transações | ⚠️ `POST` e `GET /transactions` |
-| | Histórico por clube com totais (`summary`), filtros e exportação em CSV | ❌ Pendente |
+| | Elenco com contrato, valor do elenco e patrimônio | ✅ Pronto |
+| | Ordenação da listagem por patrimônio | ✅ Pronto |
+| **Mercado** | Contratos de fidelidade (criar, consultar, alterar, excluir) | ✅ Parcial (endpoint próprio) |
+| | Compra com taxa e limite de 50% do caixa | ✅ Pronto |
+| | Venda com multa por fidelidade e comissão sobre o lucro | ✅ Pronto |
+| | Registro e listagem simples de transações | ✅ `POST` e `GET /transactions` |
+| | Histórico por clube com totais (`summary`), filtros e exportação em CSV | ✅ Pronto |
 | **Liga** | Escalação dos 5 titulares com formação | ✅ Pronto |
 | | Partidas com placar calculado pelos atributos e 6 duelos | ✅ Pronto |
 | | Histórico de partidas e consulta de uma partida | ✅ Pronto |
 | | Classificação | ✅ Pronto |
 | **Geral** | Docker (`Dockerfile` e `docker-compose`) | ✅ Pronto |
 | | Tratamento de erros com `{"message": ...}` | ✅ Pronto |
-| | Testes automatizados | ⚠️ Poucos (veja [Testes](#-testes)) |
+| | Testes automatizados | ✅ Pronto (veja [Testes](#-testes)) |
 
 ---
 
