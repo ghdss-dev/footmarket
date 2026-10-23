@@ -1,25 +1,21 @@
 import React, { useState } from 'react';
 import { ToastSucesso } from './ToastSucesso';
+import { api } from '../services/api';
 
 export function AbaEscalacao({ clube }) {
-  const [formacao, setFormacao] = useState('2-1-1');
+  const [formacao, setFormacao] = useState(clube?.escalacao?.formacao || '2-1-1');
   
-  // Estado inicial dos titulares (pode ser ajustado conforme a venda ou dados do clube)
   const [titulares, setTitulares] = useState({
-    goleiro: clube?.jogadores?.find((j) => j.posicao === 'GOL')?.id || '',
-    defesa1: '', // Simula vaga aberta caso tenha ocorrido uma venda (C11)
-    defesa2: clube?.jogadores?.find((j) => j.posicao === 'LAT')?.id || '',
-    meio: clube?.jogadores?.find((j) => j.posicao === 'MEI')?.id || '',
-    ataque: clube?.jogadores?.find((j) => j.posicao === 'ATA')?.id || '',
+    goleiro: clube?.escalacao?.goleiro || '',
+    defesa1: clube?.escalacao?.defesa1 || '',
+    defesa2: clube?.escalacao?.defesa2 || '',
+    meio: clube?.escalacao?.meio || '',
+    ataque: clube?.escalacao?.ataque || '',
   });
 
   const [escalacaoSalva, setEscalacaoSalva] = useState(false);
   const [toastAtivo, setToastAtivo] = useState(false);
-  const [erroRecusado, setErroRecusado] = useState(''); // Cenário: Escalação Recusada (C10)
-  
-  // Condição para simular o cenário de "Incompleta após venda" (C11)
-  // Pode ser ativada via props do clube ou regra de negócio, por exemplo: clube?.incompletaAposVenda
-  const [incompletaAposVenda, setIncompletaAposVenda] = useState(false);
+  const [erroRecusado, setErroRecusado] = useState('');
 
   const jogadores = clube?.jogadores || [];
 
@@ -27,7 +23,6 @@ export function AbaEscalacao({ clube }) {
     setTitulares((prev) => ({ ...prev, [vaga]: Number(jogadorId) }));
     setErroRecusado('');
     setEscalacaoSalva(false);
-    setIncompletaAposVenda(false);
   };
 
   const idsTitulares = Object.values(titulares).filter(Boolean);
@@ -41,27 +36,34 @@ export function AbaEscalacao({ clube }) {
   const jogadorDoente = jogadoresTitularesObjs.find(j => j.condicao === 'Doente');
   const temMalCondicionados = jogadoresTitularesObjs.some(j => j.condicao === 'Mal condicionado');
 
-  const handleSalvar = () => {
+  const handleSalvar = async () => {
     setErroRecusado('');
 
-    // 1. Condição de Erro: Jogador Doente (C10)
     if (jogadorDoente) {
       setErroRecusado(`${jogadorDoente.nome} está DOENTE e não pode ser escalado.`);
       setEscalacaoSalva(false);
       return;
     }
 
-    // 2. Condição de Sucesso: Escalação Completa e Salva (C08)
     if (escalacaoCompleta) {
-      setEscalacaoSalva(true);
-      setToastAtivo(true);
-      setIncompletaAposVenda(false);
+      try {
+        // Envia a escalação para o Backend via API
+        await api.put(`/clubs/${clube.id}/lineup`, {
+          formacao,
+          ...titulares,
+        });
+
+        setEscalacaoSalva(true);
+        setToastAtivo(true);
+      } catch (error) {
+        console.error('Erro ao guardar escalação no backend:', error);
+        setErroRecusado(error.response?.data?.message || 'Erro ao comunicar com o servidor.');
+      }
     }
   };
 
   return (
     <div>
-      {/* Toast de Sucesso (C08) */}
       {toastAtivo && (
         <ToastSucesso
           mensagem="Escalação salva"
@@ -70,7 +72,6 @@ export function AbaEscalacao({ clube }) {
         />
       )}
 
-      {/* 1. BANNER VERMELHO: Escalação Recusada por Jogador Doente (C10) */}
       {erroRecusado && (
         <div style={styles.errorBanner}>
           <div style={styles.errorTitle}>🚫 A escalação foi recusada</div>
@@ -78,20 +79,7 @@ export function AbaEscalacao({ clube }) {
         </div>
       )}
 
-      {/* 2. BANNER AMARELO ESPECÍFICO: Incompleta após Venda (C11) */}
-      {!escalacaoSalva && incompletaAposVenda && !erroRecusado && (
-        <div style={styles.warningBanner}>
-          <div style={styles.warningTitle}>
-            ⚠️ Escalação incompleta: o {clube?.nome || 'clube'} não pode jogar partidas
-          </div>
-          <div style={styles.warningText}>
-            Um jogador foi vendido e saiu da escalação que continuava salva, com 4 titulares. Como há jogadores doentes no plantel, nenhuma formação fecha o clube: é preciso comprar um jogador e escalar de novo.
-          </div>
-        </div>
-      )}
-
-      {/* 3. BANNER AMARELO PADRÃO: Sem Escalação / Incompleta (C07) */}
-      {!escalacaoSalva && !incompletaAposVenda && !escalacaoCompleta && !erroRecusado && (
+      {!escalacaoSalva && !escalacaoCompleta && !erroRecusado && (
         <div style={styles.warningBanner}>
           <div style={styles.warningTitle}>
             ⚠️ Escalação incompleta: o {clube?.nome || 'clube'} não pode jogar partidas
@@ -103,7 +91,6 @@ export function AbaEscalacao({ clube }) {
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px' }}>
-        {/* Coluna Principal */}
         <div style={styles.mainCard}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <div>
@@ -112,13 +99,11 @@ export function AbaEscalacao({ clube }) {
                 1 goleiro e 4 jogadores de linha, na formação escolhida. Escale todos os 5 de uma vez.
               </p>
             </div>
-            {/* Etiqueta dinâmica de Estado */}
             <span style={escalacaoSalva && escalacaoCompleta ? styles.statusCompleta : styles.statusIncompleta}>
               {escalacaoSalva && escalacaoCompleta ? '✓ Completa' : '⚠️ Incompleta'}
             </span>
           </div>
 
-          {/* Seleção de Formação */}
           <div style={{ marginBottom: '20px' }}>
             <label style={styles.sectionLabel}>Formação</label>
             <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
@@ -140,7 +125,6 @@ export function AbaEscalacao({ clube }) {
             </div>
           </div>
 
-          {/* Tabela de Vagas */}
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', marginBottom: '16px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#64748b', textAlign: 'left', fontSize: '11px' }}>
@@ -212,7 +196,6 @@ export function AbaEscalacao({ clube }) {
           </div>
         </div>
 
-        {/* Campo Visual e Reservas */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={styles.campoCard}>
             <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#0f172a', marginBottom: '8px' }}>Em campo</div>

@@ -14,27 +14,11 @@ export function DetalheClube() {
   const carregarDetalhesClube = async () => {
     try {
       setLoading(true);
+      // Requisição real ao Backend
       const response = await api.get(`/clubs/${id}`);
       setClube(response.data);
     } catch (error) {
-      console.error('Erro ao carregar detalhes do clube:', error);
-      // Fallback visual com dados fiéis ao Figma (C05 - Águias FC)
-      setClube({
-        id: id || 1,
-        nome: 'Águias FC',
-        sigla: 'AGU',
-        caixa: 51.58,
-        valorElenco: 222.68,
-        jogadores: [
-          { id: 101, nome: 'Bruno Tavares', posicao: 'GOL', overall: 71, condicao: 'Apto', valorMercado: 32.00, valorCompra: 32.00, fimFidelidade: '03/11/2028 11:20', diasRestantes: 722, multa: '20%' },
-          { id: 102, nome: 'Felipe Moura', posicao: 'ZAG', overall: 77, condicao: 'Apto', valorMercado: 52.00, valorCompra: 44.20, fimFidelidade: '04/04/2027 15:45', diasRestantes: 144, multa: '10%' },
-          { id: 103, nome: 'Diego Ramos', posicao: 'LAT', overall: 72, condicao: 'Mal condicionado', valorMercado: 40.43, valorCompra: 43.38, fimFidelidade: '10/12/2026 18:00', diasRestantes: 29, multa: '5%' },
-          { id: 104, nome: 'Lucas Ferraz', posicao: 'MEI', overall: 71, condicao: 'Doente', valorMercado: 24.00, valorCompra: 28.80, fimFidelidade: '07/11/2026 09:00', diasRestantes: 0, multa: '0%' },
-          { id: 105, nome: 'Sávio Lima', posicao: 'MEI', overall: 66, condicao: 'Mal condicionado', valorMercado: 22.25, valorCompra: 22.25, fimFidelidade: '08/05/2027 11:00', diasRestantes: 177, multa: '10%' },
-          { id: 106, nome: 'João Silva', posicao: 'ATA', overall: 77, condicao: 'Apto', valorMercado: 52.00, valorCompra: 52.00, fimFidelidade: '04/11/2029 17:10', diasRestantes: 1089, multa: '20%' },
-        ],
-        historicoCount: 10,
-      });
+      console.error('Erro ao carregar detalhes do clube do backend:', error);
     } finally {
       setLoading(false);
     }
@@ -47,12 +31,18 @@ export function DetalheClube() {
   if (loading) {
     return (
       <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'sans-serif', color: '#64748b' }}>
-        Carregando clube...
+        Carregando detalhes do clube...
       </div>
     );
   }
 
-  if (!clube) return null;
+  if (!clube) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'sans-serif', color: '#dc2626' }}>
+        Clube não encontrado ou erro de conexão com o servidor.
+      </div>
+    );
+  }
 
   const getIniciais = (nome) => {
     if (!nome) return '??';
@@ -88,14 +78,14 @@ export function DetalheClube() {
         <nav style={styles.menu}>
           <div style={styles.menuGroup}>MERCADO</div>
           <a style={styles.menuItem} onClick={() => navigate('/jogadores')}>
-            👤 Jogadores <span style={styles.badge}>23</span>
+            👤 Jogadores
           </a>
           <a style={{ ...styles.menuItem, ...styles.menuActive }} onClick={() => navigate('/clubes')}>
-            🛡️ Clubes <span style={styles.badge}>6</span>
+            🛡️ Clubes
           </a>
 
           <div style={styles.menuGroup}>LIGA</div>
-          <a style={styles.menuItem}>⚽ Partidas <span style={styles.badge}>2</span></a>
+          <a style={styles.menuItem}>⚽ Partidas</a>
           <a style={styles.menuItem}>📊 Classificação</a>
         </nav>
       </aside>
@@ -180,7 +170,7 @@ export function DetalheClube() {
             <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0' }}>
               <strong style={{ fontSize: '15px', color: '#0f172a' }}>Elenco</strong>
               <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                Ordem por posição (GOL, ZAG, LAT, MEI, ATA), depois pelo nome. Contrato calculado para uma venda agora.
+                Ordem por posição (GOL, ZAG, LAT, MEI, ATA), depois pelo nome.
               </div>
             </div>
 
@@ -192,10 +182,6 @@ export function DetalheClube() {
                   <th>Overall</th>
                   <th>Condição</th>
                   <th style={{ textAlign: 'right' }}>Valor de mercado</th>
-                  <th style={{ textAlign: 'right' }}>Valor de compra</th>
-                  <th>Fim da fidelidade</th>
-                  <th style={{ textAlign: 'center' }}>Dias restantes</th>
-                  <th style={{ textAlign: 'center' }}>% de multa</th>
                   <th style={{ textAlign: 'right', paddingRight: '16px' }}>Ações</th>
                 </tr>
               </thead>
@@ -213,23 +199,9 @@ export function DetalheClube() {
                         • {j.condicao}
                       </span>
                     </td>
-                    <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{j.valorMercado.toFixed(2)}</td>
-                    <td style={{ textAlign: 'right', color: '#64748b' }}>{j.valorCompra.toFixed(2)}</td>
-                    <td style={{ color: '#64748b', fontSize: '11px' }}>{j.fimFidelidade}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{j.diasRestantes}</td>
-                    <td style={{ textAlign: 'center' }}>
-                      <span style={{
-                        ...styles.multaBadge,
-                        backgroundColor: j.multa === '0%' ? '#dcfce7' : '#fee2e2',
-                        color: j.multa === '0%' ? '#15803d' : '#b91c1c'
-                      }}>
-                        {j.multa}
-                      </span>
-                    </td>
+                    <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{j.valorMercado?.toFixed(2)}</td>
                     <td style={{ textAlign: 'right', paddingRight: '16px' }}>
-                      <button style={styles.btnVender}>
-                        💸 Vender
-                      </button>
+                      <button style={styles.btnVender}>💸 Vender</button>
                     </td>
                   </tr>
                 ))}
@@ -240,12 +212,7 @@ export function DetalheClube() {
 
         {/* Conteúdo da Aba Escalação */}
         {abaAtiva === 'escalacao' && (
-          <AbaEscalacao 
-            clube={clube} 
-            onSalvarEscalacao={(novosTitulares, formacao) => {
-              console.log('Escalação salva:', novosTitulares, formacao);
-            }} 
-          />
+          <AbaEscalacao clube={clubre} />
         )}
       </main>
     </div>
@@ -260,7 +227,6 @@ const styles = {
   menuGroup: { fontSize: '11px', color: '#94a3b8', fontWeight: 'bold', margin: '16px 0 4px' },
   menuItem: { display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderRadius: '6px', color: '#334155', cursor: 'pointer', fontSize: '14px' },
   menuActive: { backgroundColor: '#eff6ff', color: '#2563eb', fontWeight: 'bold' },
-  badge: { backgroundColor: '#f1f5f9', fontSize: '11px', padding: '2px 6px', borderRadius: '10px' },
   badgeSiglaHeader: { backgroundColor: '#f1f5f9', color: '#0f172a', fontWeight: 'bold', borderRadius: '6px', padding: '8px 12px', fontSize: '14px', border: '1px solid #e2e8f0' },
   btnComprar: { backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' },
   metricsGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' },
@@ -277,6 +243,5 @@ const styles = {
   posBadge: { backgroundColor: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' },
   statusApto: { color: '#16a34a', backgroundColor: '#dcfce7', padding: '2px 8px', borderRadius: '12px', fontSize: '11px' },
   statusMal: { color: '#dc2626', backgroundColor: '#fee2e2', padding: '2px 8px', borderRadius: '12px', fontSize: '11px' },
-  multaBadge: { padding: '2px 6px', borderRadius: '10px', fontSize: '11px', fontWeight: 'bold' },
   btnVender: { border: '1px solid #cbd5e1', backgroundColor: '#fff', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold', color: '#0f172a' },
 };

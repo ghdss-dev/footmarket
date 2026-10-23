@@ -1,32 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
-import { ModalNovoClube } from '../components/ModalNovoClube'; // Importação do Modal
+import { ModalNovoClube } from '../components/ModalNovoClube';
 
 export function Clubes() {
   const navigate = useNavigate();
   const [clubes, setClubes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ordenacao, setOrdenacao] = useState('patrimonio_desc');
-
-  // Estado para controlar abertura do Modal de Novo Clube
   const [isModalNovoOpen, setIsModalNovoOpen] = useState(false);
 
   const carregarClubes = async () => {
     try {
       setLoading(true);
+      // Requisição real ao Backend
       const response = await api.get('/clubs');
       setClubes(response.data);
     } catch (error) {
-      console.error('Erro ao buscar clubes:', error);
-      setClubes([
-        { id: 1, nome: 'Tubarões EC', sigla: 'TUB', caixa: 300.00, valorElenco: 0.00 },
-        { id: 2, nome: 'Épsilon EC', sigla: 'EPS', caixa: 215.47, valorElenco: 80.50 },
-        { id: 3, nome: 'Gama SC', sigla: 'GAM', caixa: 181.84, valorElenco: 113.56 },
-        { id: 4, nome: 'Delta FC', sigla: 'DEL', caixa: 91.85, valorElenco: 200.76 },
-        { id: 5, nome: 'Mangue FC', sigla: 'MNG', caixa: 251.70, valorElenco: 32.20 },
-        { id: 6, nome: 'Águias FC', sigla: 'AGU', caixa: 51.58, valorElenco: 222.68 },
-      ]);
+      console.error('Erro ao buscar clubes do backend:', error);
+      setClubes([]); // Garante lista vazia caso falhe a conexão
     } finally {
       setLoading(false);
     }
@@ -71,14 +63,14 @@ export function Clubes() {
         <nav style={styles.menu}>
           <div style={styles.menuGroup}>MERCADO</div>
           <a style={styles.menuItem} onClick={() => navigate('/jogadores')}>
-            👤 Jogadores <span style={styles.badge}>23</span>
+            👤 Jogadores
           </a>
           <a style={{ ...styles.menuItem, ...styles.menuActive }} onClick={() => navigate('/clubes')}>
             🛡️ Clubes <span style={styles.badge}>{clubes.length}</span>
           </a>
 
           <div style={styles.menuGroup}>LIGA</div>
-          <a style={styles.menuItem}>⚽ Partidas <span style={styles.badge}>2</span></a>
+          <a style={styles.menuItem}>⚽ Partidas</a>
           <a style={styles.menuItem}>📊 Classificação</a>
         </nav>
       </aside>
@@ -100,12 +92,8 @@ export function Clubes() {
         {/* Barra Superior da Tabela */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <span style={styles.tabActive}>
-              {clubes.length} clubes
-            </span>
-            <span style={{ fontSize: '13px', color: '#64748b' }}>
-              {clubes.length} de 20
-            </span>
+            <span style={styles.tabActive}>{clubes.length} clubes</span>
+            <span style={{ fontSize: '13px', color: '#64748b' }}>{clubes.length} de 20</span>
           </div>
 
           <div style={{ fontSize: '13px', color: '#64748b' }}>
@@ -122,7 +110,7 @@ export function Clubes() {
           </div>
         </div>
 
-        {/* Tabela de Clubes ou Estado de Lista Vazia (C09) */}
+        {/* Tabela de Clubes ou Estado de Lista Vazia */}
         {loading ? (
           <p style={{ padding: '20px', textAlign: 'center' }}>Carregando clubes...</p>
         ) : clubes.length === 0 ? (
@@ -181,13 +169,8 @@ export function Clubes() {
             </table>
           </div>
         )}
-
-        <p style={{ fontSize: '11px', color: '#94a3b8', marginTop: '16px' }}>
-          Clubes pelo nome por padrão ou pelo patrimônio, do maior para o menor, com empate desfeito pelo nome.
-        </p>
       </main>
 
-      {/* Modal de Novo Clube */}
       <ModalNovoClube
         isOpen={isModalNovoOpen}
         onClose={() => setIsModalNovoOpen(false)}
@@ -203,7 +186,7 @@ const styles = {
   brandIcon: { backgroundColor: '#2563eb', color: '#fff', fontWeight: 'bold', borderRadius: '6px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   menu: { display: 'flex', flexDirection: 'column', gap: '4px' },
   menuGroup: { fontSize: '11px', color: '#94a3b8', fontWeight: 'bold', margin: '16px 0 4px' },
-  menuItem: { display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderRadius: '6px', color: '#334155', cursor: 'pointer', fontSize: '14px', textDecoration: 'none' },
+  menuItem: { display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderRadius: '6px', color: '#334155', cursor: 'pointer', fontSize: '14px' },
   menuActive: { backgroundColor: '#eff6ff', color: '#2563eb', fontWeight: 'bold' },
   badge: { backgroundColor: '#f1f5f9', fontSize: '11px', padding: '2px 6px', borderRadius: '10px' },
   btnNovo: { backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' },
